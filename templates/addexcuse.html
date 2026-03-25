@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>add the excuse</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body>
+    <button onClick="history.back()">go back</button>
+
+    <h1 class="text-3xl">add the excuse</h1>
+    <div>
+      <form action="/add" method="post">
+        <input type="text" name="name" id="name" placeholder="enter ur name" />
+        <input
+          type="text"
+          name="excuse"
+          id="excuse"
+          placeholder="enter the excuse"
+        />
+        <button type="submit">submit</button>
+      </form>
+    </div>
+  </body>
+</html>
