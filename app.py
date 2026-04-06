@@ -43,7 +43,7 @@ def add():
         db.session.add(newexcuse)
         db.session.commit()
         
-        # return jsonify({'status': 'ok ig', 'message': 'yo lowk ts is working RAHHHH & added to db, if error then idk u tell me gng'})
+    #   return jsonify({'status': 'ok ig', 'message': 'yo lowk ts is working RAHHHH & added to db, if error then idk u tell me gng'})
         return redirect('/')
     
 @app.route('/review', methods=['POST', 'GET'])
