@@ -14,7 +14,7 @@
         <ul>
             <li>excuses show here or smth idk</li>
         </ul>
-        <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+        <div class="">
             <div
                 class="relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default">
                 <table
@@ -22,6 +22,9 @@
                     <thead
                         class="text-sm text-body bg-neutral-secondary-soft border-b rounded-base border-default">
                         <tr>
+                            <th scope="col" class="px-6 py-3 font-medium">
+                                Rank
+                            </th>
                             <th scope="col" class="px-6 py-3 font-medium">
                                 Name
                             </th>
@@ -32,17 +35,20 @@
                                 Points
                             </th>
                             <th scope="col" class="px-6 py-3 font-medium">
-                                Rank
+                                Reason
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for excuse in excuses %}
+                        {% for position, excuse in ranked %}
                         <tr class="bg-neutral-primary border-b border-default">
-                            <th scope="row"
+                            <th class="px-6 py-4">
+                                {{ position }}
+                            </th>
+                            <td scope="row"
                                 class="px-6 py-4 font-medium text-heading whitespace-nowrap">
                                 {{ excuse.name }}
-                            </th>
+                            </td>
                             <td class="px-6 py-4">
                                 {{ excuse.excuse }}
                             </td>
@@ -50,7 +56,7 @@
                                 {{ excuse.points }}
                             </td>
                             <td class="px-6 py-4">
-                                {{ excuse.rank }}
+                                {{ excuse.reason }}
                             </td>
                         </tr>
                         {% endfor %}

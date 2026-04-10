@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, jsonify, redirect, url_for, json
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 import requests
 from flask_sqlalchemy import SQLAlchemy
 import os
@@ -19,14 +21,20 @@ aikey = os.getenv("AI_KEY")
 
 db = SQLAlchemy(app)
 
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["100 per minute"] # 100 requests per minute
+)
 
 class Excuses(db.Model):
     __tablename__ = "excuses"
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
     excuse = db.Column(db.String(250), nullable=False)
-    points = db.Column(db.String(250), nullable=False)
+    points = db.Column(db.Integer, nullable=False)
     pending = db.Column(db.Boolean, nullable=False, default=True)
+    reason = db.Column(db.String(250), nullable=False, default="no reason provided, wait or contact admin.")
 
 
 with app.app_context():
@@ -36,7 +44,7 @@ with app.app_context():
 
 
 def get_excuses():
-    excuses = Excuses.query.filter_by().all()
+    excuses = Excuses.query.filter_by().order_by(Excuses.points.desc()).limit(3).all()
     return excuses
 
 
@@ -62,8 +70,10 @@ def ai_review(id: int, excuse: str):
                     "- Points are absolute, not relative to other users — the same excuse always gets the same points.\n"
                     "- Be consistent. A mediocre excuse should always score similarly regardless of who submitted it.\n"
                     "- Total = Creativity + Audacity + Believability\n\n"
+                    "- IF THERE ARE SLURS/OFFENSIVE CONTENT: CENSOR IT BUT DONT CHANGE THE POINTS, USE ASTERISKS TO CENSOR (eg: <first character>******)\n\n"
+                    "- IF THERE ARE NORMAL/REGULAR SWEAR WORDS: DONT CENSOR, JUST REVIEW NORMALLY\n\n"
                     "Always respond ONLY in this JSON format, no preamble, no markdown backticks:\n"
-                    '{"creativity": <points>, "audacity": <points>, "believability": <points>, "total": <sum>, "review": "<witty 1-2 sentence roast>"}'
+                    '{"creativity": <points>, "audacity": <points>, "believability": <points>, "total": <sum>, "review": "<9-10 words reason on the score given, should also be censored>", "newexcuse": "<same excuse but with the offensive content censored, if there is no offensive content then just repeat the same excuse>" }'
                 ),
             },
             { "role": "user", "content": excuse }
@@ -85,8 +95,10 @@ def ai_review(id: int, excuse: str):
     
     with app.app_context():
         exc = Excuses.query.get(id)
-        exc.points = str(result["total"])
+        exc.excuse = result["newexcuse"]
+        exc.points = int(result["total"])
         exc.pending = False
+        exc.reason = result["review"]
         db.session.commit()
 
 
@@ -99,6 +111,7 @@ def home():
 
 
 @app.route("/add", methods=["POST", "GET"])
+@limiter.limit("3 per day")
 def add():
     if request.method == "GET":
         return render_template("addexcuse.html")
@@ -125,8 +138,9 @@ def add():
 @app.route("/read")
 def read():
     excuses = get_excuses()
-    
-    return render_template("allexcuses.html", excuses=excuses)
+    ranked = list(enumerate(excuses, start=1))
+    print(ranked)
+    return render_template("allexcuses.html", excuses=excuses, ranked=ranked)
 
 
 # admin routes ---------------------------------------------------------
@@ -147,20 +161,10 @@ def admin():
         return render_template("adminlogin.html")
 
 
-@app.route("/approve/<int:id>", methods=["POST", "GET"])
-def approve(id):
+@app.route("/remove/<int:id>", methods=["POST"])
+def remove(id):
     excuse = Excuses.query.get(id)
-    excuse.pending = False
-
-    db.session.commit()
-
-    return redirect("/admin")
-
-
-@app.route("/reject/<int:id>", methods=["POST", "GET"])
-def reject(id):
-    excuse = Excuses.query.get(id)
-    db.session.delete(excuse)
+    excuse.pending = True
 
     db.session.commit()
 
