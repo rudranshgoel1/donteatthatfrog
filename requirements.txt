@@ -3,3 +3,4 @@ python-dotenv
 Flask-SQLAlchemy
 psycopg2-binary
 requests
+flask_limiter
