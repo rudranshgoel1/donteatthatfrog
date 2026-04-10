@@ -24,8 +24,9 @@ db = SQLAlchemy(app)
 limiter = Limiter(
     get_remote_address,
     app=app,
-    default_limits=["100 per minute"] # 100 requests per minute
+    default_limits=["100 per minute"],  # 100 requests per minute
 )
+
 
 class Excuses(db.Model):
     __tablename__ = "excuses"
@@ -34,7 +35,11 @@ class Excuses(db.Model):
     excuse = db.Column(db.String(250), nullable=False)
     points = db.Column(db.Integer, nullable=False)
     pending = db.Column(db.Boolean, nullable=False, default=True)
-    reason = db.Column(db.String(250), nullable=False, default="no reason provided, wait or contact admin.")
+    reason = db.Column(
+        db.String(250),
+        nullable=False,
+        default="no reason provided, wait or contact admin.",
+    )
 
 
 with app.app_context():
@@ -70,21 +75,32 @@ def ai_review(id: int, excuse: str):
                     "- Points are absolute, not relative to other users — the same excuse always gets the same points.\n"
                     "- Be consistent. A mediocre excuse should always score similarly regardless of who submitted it.\n"
                     "- Total = Creativity + Audacity + Believability\n\n"
-                    "- IF THERE ARE SLURS/OFFENSIVE CONTENT: CENSOR IT BUT DONT CHANGE THE POINTS, USE ASTERISKS TO CENSOR (eg: <first character>******)\n\n"
-                    "- IF THERE ARE NORMAL/REGULAR SWEAR WORDS: DONT CENSOR, JUST REVIEW NORMALLY\n\n"
+                    "- CENSORSHIP RULES (STRICT — NO EXCEPTIONS):\n"
+                    "  * ANY profanity, slurs, offensive language, or inappropriate words MUST be censored.\n"
+                    "  * This includes mild swear words, strong swear words, slurs, and any vulgar language.\n"
+                    "  * Censoring format: keep the FIRST and LAST letter, replace all middle letters with asterisks.\n"
+                    "    Example: 'damn' → 'd**n', 'hell' → 'h**l', 'shit' → 's**t', 'fuck' → 'f**k'\n"
+                    "  * For 3-letter words: keep first and last, replace only the middle letter.\n"
+                    "    Example: 'ass' → 'a*s'\n"
+                    "  * For 2-letter words or single letters used as slurs: replace entirely with '***'.\n"
+                    "  * Do NOT let any bad word pass uncensored — not even minor ones.\n"
+                    "  * Apply censoring consistently in BOTH the 'review' field AND the 'newexcuse' field.\n"
+                    "  * Do NOT change the points awarded just because the excuse contains bad language.\n\n"
                     "Always respond ONLY in this JSON format, no preamble, no markdown backticks:\n"
-                    '{"creativity": <points>, "audacity": <points>, "believability": <points>, "total": <sum>, "review": "<9-10 words reason on the score given, should also be censored>", "newexcuse": "<same excuse but with the offensive content censored, if there is no offensive content then just repeat the same excuse>" }'
+                    '{"creativity": <points>, "audacity": <points>, "believability": <points>, "total": <sum>, '
+                    '"review": "<9-10 words reason on the score given, all bad words censored>", '
+                    '"newexcuse": "<same excuse but with ALL bad/offensive/vulgar words censored>" }'
                 ),
             },
-            { "role": "user", "content": excuse }
+            {"role": "user", "content": excuse},
         ],
     }
-    
+
     response = requests.post(
         "https://ai.hackclub.com/proxy/v1/chat/completions",
         headers={
             "Authorization": f"Bearer {aikey}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         },
         json=payload,
         timeout=60,
@@ -92,7 +108,7 @@ def ai_review(id: int, excuse: str):
     response.raise_for_status()
     data = response.json()
     result = json.loads(data["choices"][0]["message"]["content"].strip())
-    
+
     with app.app_context():
         exc = Excuses.query.get(id)
         exc.excuse = result["newexcuse"]
@@ -124,8 +140,10 @@ def add():
         newexcuse = Excuses(name=name, excuse=excuse, points=points, pending=True)
         db.session.add(newexcuse)
         db.session.commit()
-        
-        thread = threading.Thread(target=ai_review, kwargs={"id": newexcuse.id, "excuse": excuse})
+
+        thread = threading.Thread(
+            target=ai_review, kwargs={"id": newexcuse.id, "excuse": excuse}
+        )
         thread.daemon = True
         thread.start()
 
