@@ -52,6 +52,11 @@ def get_excuses():
     excuses = Excuses.query.filter_by().order_by(Excuses.points.desc()).limit(3).all()
     return excuses
 
+def get_all_excuses():
+    excuses = Excuses.query.filter_by().order_by(Excuses.points.desc()).all()
+    print(excuses)
+    return excuses
+
 
 def ai_review(id: int, excuse: str):
     if not aikey:
@@ -127,7 +132,7 @@ def home():
 
 
 @app.route("/add", methods=["POST", "GET"])
-@limiter.limit("3 per day")
+@limiter.limit("10 per day")
 def add():
     if request.method == "GET":
         return render_template("addexcuse.html")
@@ -160,6 +165,12 @@ def read():
     print(ranked)
     return render_template("allexcuses.html", excuses=excuses, ranked=ranked)
 
+@app.route("/all")
+def readall():
+    excuses = get_all_excuses()
+    ranked = list(enumerate(excuses, start=1))
+    print(ranked)
+    return render_template("allexcuses.html", excuses=excuses, ranked=ranked)
 
 # admin routes ---------------------------------------------------------
 
