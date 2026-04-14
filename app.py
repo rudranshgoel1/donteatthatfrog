@@ -21,6 +21,7 @@ adminpass = os.getenv("ADMIN_PASSWORD")
 aikey = os.getenv("AI_KEY")
 client_id = os.getenv("CLIENT_ID")
 client_secret = os.getenv("CLIENT_SECRET")
+redirect_uri = os.getenv("REDIRECT_URI")
 
 db = SQLAlchemy(app)
 
@@ -150,7 +151,7 @@ def oauth():
     payload = {
         "client_id": {client_id},
         "client_secret": {client_secret},
-        "redirect_uri": "http://127.0.0.1:5000/oauth/callback",
+        "redirect_uri": f"{redirect_uri}/oauth/callback",
         "code": code,
         "grant_type": "authorization_code",
     }
@@ -182,7 +183,7 @@ def add():
             return render_template("addexcuse.html", fullname=session['fullname'])
         
         return redirect(
-            f"https://auth.hackclub.com/oauth/authorize?client_id={client_id}&redirect_uri=http://127.0.0.1:5000/oauth/callback&response_type=code&scope=name profile slack_id"
+            f"https://auth.hackclub.com/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}/oauth/callback&response_type=code&scope=name profile slack_id"
         )
 
         # return render_template("addexcuse.html")
