@@ -4,8 +4,8 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>review the excuses</title>
-        <script
-            src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+        <script src="https://kit.fontawesome.com/3cfd2ec1aa.js" crossorigin="anonymous"></script>
     </head>
     <body>
         <button onClick="history.back()">go back</button>
@@ -38,6 +38,9 @@
                             <th scope="col" class="px-6 py-3 font-medium">
                                 Reason
                             </th>
+                            <th scope="col" class="px-3 py-3 font-medium">
+                                Report
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -58,6 +61,10 @@
                             </td>
                             <td class="px-6 py-4">
                                 {{ excuse.reason }}
+                            </td>
+                            <td class="px-6 py-4">
+                                <button href="/report/{{ excuse.id }}"><i class="fa-solid fa-triangle-exclamation"></i></button>
+                                
                             </td>
                         </tr>
                         {% endfor %}

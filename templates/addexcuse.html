@@ -9,15 +9,19 @@
   <body>
     <button onClick="history.back()">go back</button>
 
+    {{ error }}
+
     <h1 class="text-3xl">add the excuse</h1>
     <div>
       <form action="/add" method="post">
-        <input type="text" name="name" id="name" placeholder="enter ur name" />
+        <input type="text" name="name" id="name" placeholder="enter ur name" value="{{ fullname }}" disabled />
+        <input type="hidden" name="fullname" value="{{ fullname }}">
         <input
           type="text"
           name="excuse"
           id="excuse"
           placeholder="enter the excuse"
+          required
         />
         <button type="submit">submit</button>
       </form>

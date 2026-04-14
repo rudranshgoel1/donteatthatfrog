@@ -4,12 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Page</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 <body class="bg-[#f4f4f0] text-black min-h-screen py-10 px-4 sm:px-8 selection:bg-pink-400">
     
     <div>
         <h1>review queue</h1>
     </div>
+
+            <div class="">
+            <div
+                class="relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default">
+                <table
+                    class="w-full text-sm text-left rtl:text-right text-body">
+                    <thead
+                        class="text-sm text-body bg-neutral-secondary-soft border-b rounded-base border-default">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 font-medium">
+                                Rank
+                            </th>
+                            <th scope="col" class="px-6 py-3 font-medium">
+                                Name
+                            </th>
+                            <th scope="col" class="px-6 py-3 font-medium">
+                                Excuse
+                            </th>
+                            <th scope="col" class="px-6 py-3 font-medium">
+                                Points
+                            </th>
+                            <th scope="col" class="px-6 py-3 font-medium">
+                                Reason
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for position, excuse in ranked %}
+                        <tr class="bg-neutral-primary border-b border-default">
+                            <th class="px-6 py-4">
+                                {{ position }}
+                            </th>
+                            <td scope="row"
+                                class="px-6 py-4 font-medium text-heading whitespace-nowrap">
+                                {{ excuse.name }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ excuse.excuse }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ excuse.points }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ excuse.reason }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
 </body>
 </html>

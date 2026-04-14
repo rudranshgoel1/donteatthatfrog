@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, json
+from flask import Flask, render_template, request, jsonify, redirect, url_for, json, session
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_login import LoginManager, login_required
 import requests
 from flask_sqlalchemy import SQLAlchemy
 import os
@@ -18,6 +19,8 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 adminpass = os.getenv("ADMIN_PASSWORD")
 aikey = os.getenv("AI_KEY")
+client_id = os.getenv("CLIENT_ID")
+client_secret = os.getenv("CLIENT_SECRET")
 
 db = SQLAlchemy(app)
 
@@ -26,6 +29,9 @@ limiter = Limiter(
     app=app,
     default_limits=["100 per minute"],  # 100 requests per minute
 )
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 
 class Excuses(db.Model):
@@ -51,6 +57,7 @@ with app.app_context():
 def get_excuses():
     excuses = Excuses.query.filter_by().order_by(Excuses.points.desc()).limit(3).all()
     return excuses
+
 
 def get_all_excuses():
     excuses = Excuses.query.filter_by().order_by(Excuses.points.desc()).all()
@@ -125,22 +132,70 @@ def ai_review(id: int, excuse: str):
 
 # routes ---------------------------------------------------------
 
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
 
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
+@app.route("/oauth/callback")
+def oauth():
+    code = request.args.get("code")
+    if not code:
+        return "Error, oauth was not done properly, no code provided."
+
+    payload = {
+        "client_id": {client_id},
+        "client_secret": {client_secret},
+        "redirect_uri": "http://127.0.0.1:5000/oauth/callback",
+        "code": code,
+        "grant_type": "authorization_code",
+    }
+    requestauth = requests.post(
+        "https://auth.hackclub.com/oauth/token",
+        data=payload,
+    )
+    response = requestauth.json()
+    
+    namerequest = requests.get(
+        "https://auth.hackclub.com/api/v1/me",
+        headers={
+            "Authorization": f"Bearer {response['access_token']}"
+        }
+    )
+    nameresponse = namerequest.json()
+
+    fullname = nameresponse['identity']['first_name'] + " " + nameresponse['identity']['last_name']
+    session['fullname'] = fullname
+    
+    return redirect("/add")
+
+
 @app.route("/add", methods=["POST", "GET"])
 @limiter.limit("10 per day")
 def add():
     if request.method == "GET":
-        return render_template("addexcuse.html")
+        if 'fullname' in session:
+            return render_template("addexcuse.html", fullname=session['fullname'])
+        
+        return redirect(
+            f"https://auth.hackclub.com/oauth/authorize?client_id={client_id}&redirect_uri=http://127.0.0.1:5000/oauth/callback&response_type=code&scope=name profile slack_id"
+        )
+
+        # return render_template("addexcuse.html")
     if request.method == "POST":
         print(request.form)
-        name = request.form["name"]
+        name = request.form["fullname"]
         excuse = request.form["excuse"]
         points = "0"
+        allexcuses = get_all_excuses()
+
+        if excuse in allexcuses:
+            error = "someone used this excuse already, be unique smh"
+            return render_template("addexcuse.html", error=error)
 
         newexcuse = Excuses(name=name, excuse=excuse, points=points, pending=True)
         db.session.add(newexcuse)
@@ -165,12 +220,14 @@ def read():
     print(ranked)
     return render_template("allexcuses.html", excuses=excuses, ranked=ranked)
 
+
 @app.route("/all")
 def readall():
     excuses = get_all_excuses()
     ranked = list(enumerate(excuses, start=1))
     print(ranked)
     return render_template("allexcuses.html", excuses=excuses, ranked=ranked)
+
 
 # admin routes ---------------------------------------------------------
 
@@ -181,7 +238,11 @@ def admin():
         password = request.form["password"]
         if password:
             if password == adminpass:
-                return render_template("adminreview.html")
+                excuses = get_all_excuses()
+                ranked = list(enumerate(excuses, start=1))
+                return render_template(
+                    "adminreview.html", excuses=excuses, ranked=ranked
+                )
             else:
                 error = "not authorized bozo, read .env and login again :icant:"
                 return render_template("adminlogin.html", error=error)
@@ -198,6 +259,12 @@ def remove(id):
     db.session.commit()
 
     return redirect("/admin")
+
+@app.route("/report/<int:id>", methods=["POST"])
+def report(id):
+    excuse = Excuses.query.get(id)
+    
+    # todo: build this
 
 
 if __name__ == "__main__":
