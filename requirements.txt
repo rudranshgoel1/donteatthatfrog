@@ -4,3 +4,4 @@ Flask-SQLAlchemy
 psycopg2-binary
 requests
 flask_limiter
+flask-login
