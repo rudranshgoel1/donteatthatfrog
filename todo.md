@@ -7,3 +7,4 @@ Todo:
 - [ ] report an excuse in /read and /all
 - [x] add HCA while adding excuse
 - [x] duplicate checks
+- [ ] change name to slack display name instead of legal name
