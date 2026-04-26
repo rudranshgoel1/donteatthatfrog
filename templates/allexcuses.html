@@ -7,7 +7,7 @@
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
         <script src="https://kit.fontawesome.com/3cfd2ec1aa.js" crossorigin="anonymous"></script>
     </head>
-    <body>
+    <body class="bg-[#f4f4f0] text-black min-h-screen py-10 px-4 sm:px-8">
         <button onClick="history.back()">go back</button>
 
         <h1 class="text-3xl">read all the excuses</h1>
@@ -15,6 +15,15 @@
             <li>excuses show here or smth idk</li>
         </ul>
         <button class="border-2 mx-2 my-2 p-2"><a href="/all">read all excuses (all not top 3)</a></button>
+        <div class="flex gap-4 mt-4">
+            {% if pagination.has_prev %}
+                <a href="?page={{ pagination.prev_num }}" class="p-2 border">prev</a>
+            {% endif %}
+
+            {% if pagination.has_next %}
+                <a href="?page={{ pagination.next_num }}" class="p-2 border">next</a>
+            {% endif %}
+        </div>
         <div class="">
             <div
                 class="relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default">
@@ -63,8 +72,7 @@
                                 {{ excuse.reason }}
                             </td>
                             <td class="px-6 py-4">
-                                <button href="/report/{{ excuse.id }}"><i class="fa-solid fa-triangle-exclamation"></i></button>
-                                
+                                <button><a href="/report/{{ excuse.id }}"><i class="fa-solid fa-triangle-exclamation"></i></a></button>
                             </td>
                         </tr>
                         {% endfor %}

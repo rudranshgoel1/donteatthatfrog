@@ -5,3 +5,5 @@ psycopg2-binary
 requests
 flask_limiter
 flask-login
+slackclient
+slackeventsapi

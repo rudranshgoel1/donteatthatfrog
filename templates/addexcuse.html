@@ -16,6 +16,7 @@
       <form action="/add" method="post">
         <input type="text" name="name" id="name" placeholder="enter ur name" value="{{ fullname }}" disabled />
         <input type="hidden" name="fullname" value="{{ fullname }}">
+        <input type="hidden" name="slack_id" value="{{ slack_id }}">
         <input
           type="text"
           name="excuse"

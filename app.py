@@ -7,6 +7,11 @@ from flask_sqlalchemy import SQLAlchemy
 import os
 import dotenv
 import threading
+from slackeventsapi import SlackEventAdapter
+import slack
+import hmac
+import time
+import hashlib
 
 # flask settings ---------------------------------------------------------
 
@@ -34,6 +39,43 @@ limiter = Limiter(
 login_manager = LoginManager()
 login_manager.init_app(app)
 
+# slack ----------------------------------------------------------
+
+client = slack.WebClient(token=os.getenv("SLACK_TOKEN"))
+workspaceid = os.getenv("WORKSPACE_ID")
+
+slack_event_adapter = SlackEventAdapter(os.getenv("SLACK_SIGNING_SECRET"), '/slack/events', app)
+
+def verify_slack_signature(req):
+    slack_signing_secret = os.getenv('SLACK_SIGNING_SECRET').encode()
+    timestamp = req.headers.get('X-Slack-Request-Timestamp')
+
+    if abs(time.time() - int(timestamp)) > 60 * 5:
+        return False
+    
+    sig_basestring = f"v0:{timestamp}:{req.get_data(as_text=True)}"
+    my_signature = 'v0=' + hmac.new(slack_signing_secret, sig_basestring.encode(), hashlib.sha256).hexdigest()
+    slack_signature = req.headers.get('X-Slack-Signature', '')
+
+    return hmac.compare_digest(my_signature, slack_signature)
+
+@app.route('/slack/events', methods=['POST'])
+def slack_events():
+    if not verify_slack_signature(request):
+        return "invalid signature", 403
+
+    data = request.json
+
+    if data.get('type') == 'url_verification':
+        return jsonify({'challenge': data['challenge']})
+    
+    if data.get('type') == 'event_callback':
+        event = data.get('event', {})
+        print(f"Event received: {event}")
+
+    return jsonify({'status': 'ok'})
+
+# db tables ---------------------------------------------------------
 
 class Excuses(db.Model):
     __tablename__ = "excuses"
@@ -47,6 +89,7 @@ class Excuses(db.Model):
         nullable=False,
         default="no reason provided, wait or contact admin.",
     )
+    slack_id = db.Column(db.String(250), nullable=True)
 
 
 with app.app_context():
@@ -61,8 +104,7 @@ def get_excuses():
 
 
 def get_all_excuses():
-    excuses = Excuses.query.filter_by().order_by(Excuses.points.desc()).all()
-    print(excuses)
+    excuses = Excuses.query.order_by(Excuses.points.desc())
     return excuses
 
 
@@ -135,7 +177,7 @@ def ai_review(id: int, excuse: str):
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(user_id)
+    return "0"
 
 @app.route("/")
 def home():
@@ -168,9 +210,12 @@ def oauth():
         }
     )
     nameresponse = namerequest.json()
+    
+    print(nameresponse)
 
     fullname = nameresponse['identity']['first_name'] + " " + nameresponse['identity']['last_name']
     session['fullname'] = fullname
+    session['slack_id'] = nameresponse['identity']['slack_id']
     
     return redirect("/add")
 
@@ -179,8 +224,8 @@ def oauth():
 @limiter.limit("10 per day")
 def add():
     if request.method == "GET":
-        if 'fullname' in session:
-            return render_template("addexcuse.html", fullname=session['fullname'])
+        if 'fullname' and 'slack_id' in session:
+            return render_template("addexcuse.html", fullname=session['fullname'], slack_id=session['slack_id'])
         
         return redirect(
             f"https://auth.hackclub.com/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}/oauth/callback&response_type=code&scope=name profile slack_id"
@@ -190,6 +235,7 @@ def add():
     if request.method == "POST":
         print(request.form)
         name = request.form["fullname"]
+        slack_id = request.form["slack_id"]
         excuse = request.form["excuse"]
         points = "0"
         allexcuses = get_all_excuses()
@@ -198,7 +244,7 @@ def add():
             error = "someone used this excuse already, be unique smh"
             return render_template("addexcuse.html", error=error)
 
-        newexcuse = Excuses(name=name, excuse=excuse, points=points, pending=True)
+        newexcuse = Excuses(name=name, excuse=excuse, points=points, pending=True, slack_id=slack_id)
         db.session.add(newexcuse)
         db.session.commit()
 
@@ -218,16 +264,22 @@ def add():
 def read():
     excuses = get_excuses()
     ranked = list(enumerate(excuses, start=1))
-    print(ranked)
-    return render_template("allexcuses.html", excuses=excuses, ranked=ranked)
+    
+    return render_template("allexcuses.html", excuses=excuses, ranked=ranked, pagination=None)
 
 
 @app.route("/all")
 def readall():
-    excuses = get_all_excuses()
-    ranked = list(enumerate(excuses, start=1))
-    print(ranked)
-    return render_template("allexcuses.html", excuses=excuses, ranked=ranked)
+    page = request.args.get('page', 1, type=int)
+    
+    query = get_all_excuses()
+    pagination = db.paginate(query, page=page, per_page=10, error_out=False)
+    
+    excuses = pagination.items
+    
+    ranked = list(enumerate(excuses, start=(page - 1) * 10 + 1))
+    
+    return render_template("allexcuses.html", excuses=excuses, ranked=ranked, pagination=pagination)
 
 
 # admin routes ---------------------------------------------------------
