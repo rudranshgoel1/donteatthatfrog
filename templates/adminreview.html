@@ -8,8 +8,10 @@
 </head>
 <body class="bg-[#f4f4f0] text-black min-h-screen py-10 px-4 sm:px-8 selection:bg-pink-400">
     
-    <div>
+    <div class="md-6">
         <h1>review queue</h1>
+
+        <button class="border-2 px-2 py-2"><a href="/hidden">see hidden excuses (reported by users)</a></button>
     </div>
 
             <div class="">
@@ -35,10 +37,40 @@
                             <th scope="col" class="px-6 py-3 font-medium">
                                 Reason
                             </th>
+                            <th scope="col" class="px-6 py-3 font-medium">
+                                Delete
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for position, excuse in ranked %}
+                        {% if excuse.pending == True %}
+                        <tr class="bg-pink-300 border-b border-default">
+                            <th class="px-6 py-4">
+                                {{ position }}
+                            </th>
+                            <td scope="row"
+                                class="px-6 py-4 font-medium text-heading whitespace-nowrap">
+                                {{ excuse.name }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ excuse.excuse }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ excuse.points }}
+                            </td>
+                            <td class="px-6 py-4">
+                                {{ excuse.reason }}
+                            </td>
+                            <td class="px-6 py-4">
+                                <form action="/remove/{{ excuse.id }}" method="post">
+                                    <button type="submit"><img src="{{ url_for('static', filename='delete.svg') }}" alt="Delete" width="35" height="35"></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endif %}
+                        
+                        {% if excuse.pending == False %}
                         <tr class="bg-neutral-primary border-b border-default">
                             <th class="px-6 py-4">
                                 {{ position }}
@@ -56,7 +88,13 @@
                             <td class="px-6 py-4">
                                 {{ excuse.reason }}
                             </td>
+                            <td class="px-6 py-4">
+                                <form action="/remove/{{ excuse.id }}" method="post">
+                                    <button type="submit"><img src="{{ url_for('static', filename='delete.svg') }}" alt="Delete" width="35" height="35"></button>
+                                </form>
+                            </td>
                         </tr>
+                        {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>

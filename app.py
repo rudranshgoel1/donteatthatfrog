@@ -120,21 +120,28 @@ with app.app_context():
 
 
 def get_excuses():
-    excuses = Excuses.query.filter_by().order_by(Excuses.points.desc()).limit(3).all()
+    excuses = Excuses.query.filter_by(pending=False).order_by(Excuses.points.desc()).limit(3).all()
     return excuses
 
 
 def get_all_excuses():
-    excuses = Excuses.query.order_by(Excuses.points.desc())
+    excuses = Excuses.query.filter_by(pending=False).order_by(Excuses.points.desc())
     return excuses
 
+def get_reported_excuses():
+    excuses = Excuses.query.filter(Excuses.reason.like("%reported by a user%")).order_by(Excuses.points.desc()).all()
+    return excuses
+
+def get_every_excuse():
+    excuses = Excuses.query.order_by(Excuses.points.desc()).all()
+    return excuses
 
 def ai_review(id: int, excuse: str):
     if not aikey:
         print("add api key in .env")
 
     payload = {
-        "model": "x-ai/grok-4.1-fast",
+        "model": "anthropic/claude-opus-4.8-fast",
         "messages": [
             {
                 "role": "system",
@@ -204,7 +211,15 @@ def load_user(user_id):
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    if "isadmin" in session:
+        print(session["isadmin"])
+        
+        return render_template("index.html")
+    else:
+        session["isadmin"] = False
+        print(session["isadmin"])
+        
+        return render_template("index.html")
 
 
 @app.route("/oauth/callback")
@@ -367,8 +382,11 @@ def admin():
         password = request.form["password"]
         if password:
             if password == adminpass:
-                excuses = get_all_excuses()
+                excuses = get_every_excuse()
                 ranked = list(enumerate(excuses, start=1))
+                
+                session["isadmin"] = True
+                
                 return render_template(
                     "adminreview.html", excuses=excuses, ranked=ranked
                 )
@@ -377,7 +395,13 @@ def admin():
                 return render_template("adminlogin.html", error=error)
 
     if request.method == "GET":
-        return render_template("adminlogin.html")
+        if "isadmin" in session and session["isadmin"] == True:
+            excuses = get_every_excuse()
+            ranked = list(enumerate(excuses, start=1))
+            
+            return render_template("adminreview.html", excuses=excuses, ranked=ranked)
+        else:
+            return render_template("adminlogin.html")
 
 
 @app.route("/remove/<int:id>", methods=["POST"])
@@ -389,13 +413,29 @@ def remove(id):
 
     return redirect("/admin")
 
+@app.route("/hidden", methods=["POST", "GET"])
+def hidden():
+    if request.method == "GET":
+        excuses = Excuses.query.filter_by(pending=True).order_by(Excuses.points.desc()).all()
+        ranked = list(enumerate(excuses, start=1))
+        return render_template("hiddenexcuses.html", excuses=excuses, ranked=ranked) # todo: build this, right now it gives 404
 
-@app.route("/report/<int:id>", methods=["POST"])
+
+@app.route("/report/<int:id>", methods=["GET"])
 def report(id):
-    excuse = Excuses.query.get(id)
-
-    # todo: build this
-
+    if "slack_id" not in session:
+        session["source"] = "own"
+        
+        return redirect(
+        f"https://auth.hackclub.com/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}/oauth/callback&response_type=code&scope=name profile slack_id"
+        )
+    else:
+        excuse = Excuses.query.get(id)
+        excuse.pending = True
+        excuse.reason = "reported by " + session["fullname"] + "  |  " + excuse.reason
+        db.session.commit()
+        
+        return redirect("/all")
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)

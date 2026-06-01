@@ -3,4 +3,8 @@
 
 ## currently in development
 
-### building for flavortown - hack club
+### building for horizons - hack club
+
+# todo:
+
+[See what all tasks are pending...](todo.md)

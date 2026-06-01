@@ -3,10 +3,13 @@ Todo:
 - [x] add captcha in /add
 - [x] name and excuse required
 - [x] page navigation in /all
-- [ ] manage all entries in /admin
-- [ ] report an excuse in /read and /all
 - [x] add HCA while adding excuse
 - [x] duplicate checks
 - [x] change name to slack display name instead of legal name
-- [ ] a way to see all ur excuses and rank - redirects to /all and highlights it
+- [x] manage all entries in /admin
 - [x] /own works
+- [x] report an excuse in /read and /all
+- [x] you can see only non-reported excuses
+- [ ] a way (ONLY FOR ADMIN) to see who has reported
+- [ ] /hidden - make it work
+- [ ] a way to see all ur excuses and rank - redirects to /all and highlights it
