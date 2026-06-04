@@ -274,7 +274,7 @@ def oauth():
 
 
 @app.route("/add", methods=["POST", "GET"])
-@limiter.limit("10 per day")
+@limiter.limit("10 per day", exempt_when=lambda: request.method == "GET")
 def add():
     if request.method == "GET":
         if "fullname" and "slack_id" in session:
