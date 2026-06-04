@@ -10,6 +10,7 @@ Todo:
 - [x] /own works
 - [x] report an excuse in /read and /all
 - [x] you can see only non-reported excuses
-- [ ] a way (ONLY FOR ADMIN) to see who has reported
-- [ ] /hidden - make it work
-- [ ] a way to see all ur excuses and rank - redirects to /all and highlights it
+- [x] a way to see all ur excuses and rank - redirects to /all and highlights it
+- [x] a way (ONLY FOR ADMIN) to see who has reported
+- [x] /hidden - make it work
+

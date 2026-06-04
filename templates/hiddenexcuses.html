@@ -3,34 +3,18 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>all excuses</title>
+        <title>hidden excuses</title>
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
         <script src="https://kit.fontawesome.com/3cfd2ec1aa.js" crossorigin="anonymous"></script>
     </head>
     <body class="bg-[#f4f4f0] text-black min-h-screen py-10 px-4 sm:px-8">
         <button onClick="history.back()">go back</button>
 
-        <h1 class="text-3xl">read all the excuses</h1>
+        <h1 class="text-3xl">hidden excuses</h1>
         <ul>
             <li>excuses show here or smth idk</li>
         </ul>
-        <button class="border-2 mx-2 my-2 p-2"><a href="/all">read all excuses (all not top 3)</a></button>
-        <div class="flex gap-4 mt-4">
-            {% if pagination.has_prev %}
-                <a href="?page={{ pagination.prev_num }}" class="p-2 border">prev</a>
-            {% endif %}
-
-            {% if pagination.has_next %}
-                <a href="?page={{ pagination.next_num }}" class="p-2 border">next</a>
-            {% endif %}
-        </div>
-        
-        {% if slackid == "nologin" %}
-        <div class="flex gap-4 mt-4">
-            <button class="border-2 mx-2 my-2 p-2"><a href="/readlogin">login to view your excuses or add an excuse</a></button>
-        </div>
-        {% endif %}
-
+        <button class="border-2 mx-2 my-2 p-2"><a href="/admin">manage all excuses (all not only hidden, only coz u admin)</a></button>
         <div class="">
             <div
                 class="relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default">
@@ -40,7 +24,7 @@
                         class="text-sm text-body bg-neutral-secondary-soft border-b rounded-base border-default">
                         <tr>
                             <th scope="col" class="px-6 py-3 font-medium">
-                                Rank
+                                Serial No.
                             </th>
                             <th scope="col" class="px-6 py-3 font-medium">
                                 Name
@@ -54,40 +38,10 @@
                             <th scope="col" class="px-6 py-3 font-medium">
                                 Reason
                             </th>
-                            <th scope="col" class="px-3 py-3 font-medium">
-                                Report
-                            </th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for position, excuse in ranked %}
-                        {% if excuse.slack_id == slackid %}
-                        <tr class="bg-pink-300 border-b border-default">
-                            <th class="px-6 py-4">
-                                {{ position }}
-                            </th>
-                            <td scope="row"
-                                class="px-6 py-4 font-medium text-heading whitespace-nowrap">
-                                {{ excuse.name }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ excuse.excuse }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ excuse.points }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ excuse.reason }}
-                            </td>
-                            <td class="px-6 py-4">
-                                    <a href="/report/{{ excuse.id }}">
-                                        <img src="{{ url_for('static', filename='report.svg') }}" alt="Report" width="35" height="35">
-                                    </a>
-                            </td>
-                        </tr>
-                        {% endif %}
-
-                        {% if excuse.slack_id != slackid %}
                         <tr class="bg-neutral-primary border-b border-default">
                             <th class="px-6 py-4">
                                 {{ position }}
@@ -105,13 +59,7 @@
                             <td class="px-6 py-4">
                                 {{ excuse.reason }}
                             </td>
-                            <td class="px-6 py-4">
-                                    <a href="/report/{{ excuse.id }}">
-                                        <img src="{{ url_for('static', filename='report.svg') }}" alt="Report" width="35" height="35">
-                                    </a>
-                            </td>
                         </tr>
-                        {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>

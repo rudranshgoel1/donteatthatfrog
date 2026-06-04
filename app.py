@@ -111,6 +111,7 @@ class Excuses(db.Model):
         default="no reason provided, wait or contact admin.",
     )
     slack_id = db.Column(db.String(250), nullable=True)
+    reportedby = db.Column(db.String(250), nullable=True)
 
 
 with app.app_context():
@@ -263,6 +264,10 @@ def oauth():
         return redirect("/add")
     elif redirect_source == "own":
         return redirect("/own")
+    elif redirect_source == "readlogin":
+        return redirect("/read")
+    elif redirect_source == "alllogin":
+        return redirect("/all")
     else:
         print("no redirect source provided, tf is wrong with this human, anyways, redirecting to homepage")
         return redirect("/")
@@ -278,7 +283,7 @@ def add():
             slackid = session["slack_id"]
 
             response = client.users_info(
-                user="U0AD4996D1U",
+                user=slackid,
             )
 
             print(response)
@@ -332,10 +337,28 @@ def add():
 def read():
     excuses = get_excuses()
     ranked = list(enumerate(excuses, start=1))
+    
+    if "slack_id" not in session:
+        slackid = "nologin"
+    else:
+        slackid = session["slack_id"]
+        if slackid:
+            print(slackid)
 
     return render_template(
-        "allexcuses.html", excuses=excuses, ranked=ranked, pagination=None
+        "allexcuses.html", excuses=excuses, ranked=ranked, pagination=None, slackid=slackid
     )
+    
+@app.route("/readlogin")
+def readlogin():
+    if "slack_id" not in session:
+        session["source"] = "readlogin"
+        
+        return redirect(
+            f"https://auth.hackclub.com/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}/oauth/callback&response_type=code&scope=name profile slack_id"
+        )
+    else:
+        return redirect("/read")
 
 
 @app.route("/all")
@@ -348,10 +371,29 @@ def readall():
     excuses = pagination.items
 
     ranked = list(enumerate(excuses, start=(page - 1) * 10 + 1))
+    
+    if "slack_id" not in session:
+        slackid = "nologin"
+    else:
+        slackid = session["slack_id"]
+        if slackid:
+            print(slackid)
 
     return render_template(
-        "allexcuses.html", excuses=excuses, ranked=ranked, pagination=pagination
+        "allexcuses.html", excuses=excuses, ranked=ranked, pagination=pagination, slackid=slackid
     )
+    
+@app.route("/alllogin")
+def alllogin():
+    if "slack_id" not in session:
+        session["source"] = "alllogin"
+        
+        return redirect(
+            f"https://auth.hackclub.com/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}/oauth/callback&response_type=code&scope=name profile slack_id"
+        )
+    else:
+        return redirect("/all")
+
     
 @app.route("/own")
 def own():
@@ -415,11 +457,12 @@ def remove(id):
 
 @app.route("/hidden", methods=["POST", "GET"])
 def hidden():
-    if request.method == "GET":
+    if request.method == "GET" and "isadmin" in session and session["isadmin"] == True:
         excuses = Excuses.query.filter_by(pending=True).order_by(Excuses.points.desc()).all()
         ranked = list(enumerate(excuses, start=1))
         return render_template("hiddenexcuses.html", excuses=excuses, ranked=ranked) # todo: build this, right now it gives 404
-
+    else:
+        return jsonify({"status": 503, "message": "not authorized, login through /admin and come here"})
 
 @app.route("/report/<int:id>", methods=["GET"])
 def report(id):
@@ -430,9 +473,21 @@ def report(id):
         f"https://auth.hackclub.com/oauth/authorize?client_id={client_id}&redirect_uri={redirect_uri}/oauth/callback&response_type=code&scope=name profile slack_id"
         )
     else:
+        token = os.environ["SLACK_TOKEN"]
+        slackid = session["slack_id"]
+
+        response = client.users_info(
+            user=session["slack_id"],
+        )
+
+        print(response)
+            
+        session["fullname"] = response["user"]["profile"]["display_name"]
+        
         excuse = Excuses.query.get(id)
         excuse.pending = True
-        excuse.reason = "reported by " + session["fullname"] + "  |  " + excuse.reason
+        excuse.reportedby = session["fullname"] + " (@" + session["slack_id"] + ")"
+        excuse.reason = "reported by " + session["fullname"] + " (@" + session["slack_id"] + ")" + "  |  " + excuse.reason
         db.session.commit()
         
         return redirect("/all")
