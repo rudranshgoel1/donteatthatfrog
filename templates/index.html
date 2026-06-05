@@ -6,15 +6,27 @@
     <title>Homepage</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   </head>
-  <body class="mx-2 my-2">
+  <body>
+    <div class="min-h-screen bg-[#faf9f6] text-[#1a1a1a] flex flex-col items-center justify-center px-5 font mono">
+      <h1 class="text-5xl md:text-7xl font-extrabold tracking-[-0.05em] hover:text-[#ee7e0f]">detf.</h1>
 
-    <div>
-      <h1 class="text-3xl">Homepage</h1>
-      <ul>
-        <button class="border-2 mx-2 my-2 p-2"><a href="/add">add excuse</a></button>
-        <button class="border-2 mx-2 my-2 p-2"><a href="/read">read all excuse</a></button>
-        <button class="border-2 mx-2 my-2 p-2"><a href="/own">read your excuses</a></button>
-      </ul>
+      <p class="text-lg text-gray-500 text-center mb-16 mt-2">
+        <b>DON'T</b> eat that frog. <b>Justify</b> it.
+      </p>
+
+      <div class="flex flex-col md:flex-row gap-8 justify-center w-full max-w-xs md:max-w-none">
+        <a href="/add"><button class="bg-[#faf9f6] text-[#1a1a1a] border-[3px] border-[#1a1a1a] px-8 py-6 text-xl font-bold shadow-[6px_6px_0px_#1a1a1a] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-[#ff9f1c] hover:text-[#ee7e0f] hover:cursor-pointer hover:shadow-[8px_8px_0px_#ff9f1c] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#1a1a1a]">
+          add excuse
+        </button></a>
+
+        <a href="/read"><button class="bg-[#faf9f6] text-[#1a1a1a] border-[3px] border-[#1a1a1a] px-8 py-6 text-xl font-bold shadow-[6px_6px_0px_#1a1a1a] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-[#ff9f1c] hover:text-[#ee7e0f] hover:cursor-pointer hover:shadow-[8px_8px_0px_#ff9f1c] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#1a1a1a]">
+          read all excuses
+        </button></a>
+
+        <a href="/own"><button class="bg-[#faf9f6] text-[#1a1a1a] border-[3px] border-[#1a1a1a] px-8 py-6 text-xl font-bold shadow-[6px_6px_0px_#1a1a1a] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-[#ff9f1c] hover:text-[#ee7e0f] hover:cursor-pointer hover:shadow-[8px_8px_0px_#ff9f1c] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#1a1a1a]">
+          read your excuses
+        </button></a>
+      </div>
     </div>
   </body>
 </html>

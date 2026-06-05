@@ -6,26 +6,56 @@
     <title>add the excuse</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   </head>
-  <body class="mx-2 my-2">
-    <button onClick="history.back()">go back</button>
+  <body class="bg-[#faf9f6] text-[#1a1a1a] font mono">
+    <div class="min-h-screen">
+      <div class="bg-[#faf9f6] text-[#1a1a1a] py-5 px-5 font mono">
+        <button onClick="history.back()"
+          class="bg-[#faf9f6] border-[3px] border-[#1a1a1a] px-8 py-4 text-xl font-bold shadow-[6px_6px_0px_#1a1a1a] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-[#ee7e0f] hover:text-[#ee7e0f] hover:shadow-[8px_8px_0px_#ee7e0f] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#1a1a1a]">
+          go back
+        </button>
+      </div>
+      <div
+        class=" bg-[#faf9f6] text-[#1a1a1a] flex flex-col items-center justify-center px-5 font mono">
+        {% if error %}
+        <div
+          class="mb-8 border-[3px] border-[#ee7e0f] p-4 font-bold text-[#ee7e0f] shadow-[6px_6px_0px_#ee7e0f]">
+          {{ error }}
+        </div>
+        {% endif %}
 
-    {{ error }}
+        <h1
+          class="text-5xl font-extrabold tracking-[-0.05em] mb-2 hover:text-[#ee7e0f]">add
+          excuse.</h1>
 
-    <h1 class="text-3xl">add the excuse</h1>
-    <div>
-      <form action="/add" method="post">
-        <input type="text" name="name" id="name" placeholder="enter ur name" value="{{ fullname }}" disabled />
-        <input type="hidden" name="fullname" value="{{ fullname }}">
-        <input type="hidden" name="slack_id" value="{{ slack_id }}">
-        <input
-          type="text"
-          name="excuse"
-          id="excuse"
-          placeholder="enter the excuse"
-          required
-        />
-        <button class="border-2 px-3" type="submit">submit</button>
-      </form>
+        <p class="text-gray-500 mb-10"><b>explain</b> why the frog remains
+          uneaten.</p>
+
+        <form action="/add" method="post"
+          class="space-y-6 justify-center items-center">
+          <div>
+            <label class="block mb-2 font-bold">excuse owner</label>
+            <input type="text" value="{{ fullname }}" disabled
+              class="w-full bg-[#faf9f6] border-[3px] border-[#1a1a1a] px-4 py-4 shadow-[6px_6px_0px_#1a1a1a] disabled:text-gray-500">
+
+            <input type="hidden" name="fullname" value="{{ fullname }}">
+            <input type="hidden" name="slack_id" value="{{ slack_id }}">
+          </div>
+
+          <div>
+            <label for="excuse" class="block mb-2 font-bold">your
+              excuse <span class="text-[#ff5e5e]">*</span></label>
+
+            <textarea name="excuse" id="excuse" rows="5" required
+              placeholder="i blew up..."
+              class="w0full resize-non bg-[#faf9f6] border-[3px] border-[#1a1a1a] px-4 py-4 shadow-[6px_6px_0px_#1a1a1a] focus:outline-none focus:border-[#ee7e0f] focus:shadow-[8px_8px_0px_#ee7e0f] transition-all duration-200"></textarea>
+          </div>
+
+          <button type="submit"
+            class="w-full bg-[#faf9f6] border-[3px] border-[#1a1a1a] px-8 py-4 text-xl font-bold shadow-[6px_6px_0px_#1a1a1a] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-[#ee7e0f] hover:text-[#ee7e0f] hover:shadow-[8px_8px_0px_#ee7e0f] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#1a1a1a]">
+            submit excuse
+          </button>
+        </form>
+      </div>
     </div>
   </body>
 </html>
