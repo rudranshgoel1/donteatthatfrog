@@ -8,36 +8,47 @@
             src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     </head>
     <body>
-        {% if error %}
         <div
-            class="p-4 mb-4 text-sm text-fg-danger-strong rounded-base bg-danger-soft"
-            role="alert">
-            <span class="font-medium">Error or something!</span> {{ error }}
-        </div>
-        {% endif %}
-        
-        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-            <form action="/admin" method="POST" class="space-y-6">
-                <div>
-                    <div class="flex items-center justify-between">
-                        <label for="password"
-                            class="block text-sm/6 font-medium text-gray-900">Password</label>
-                    </div>
-                    <div class="mt-2">
-                        <input id="password" type="password" name="password"
-                            required autocomplete="current-password"
-                            class="block w-full rounded-md bg-black/5 px-3 py-1.5 text-base text-gray-900 outline-5 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
-                    </div>
-                </div>
+            class="w-full min-h-screen justify-center items-center flex flex-col px-5">
+
+            {% if error %}
+            <div
+                class="mb-8 border-[3px] border-[#ff5e5e] p-4 font-bold text-[#ff5e5e] shadow-[6px_6px_0px_#ff5e5e]">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            <div class="items-center">
+                <h1 class="text-5xl md:text-7xl font-extrabold tracking-[-0.05em] hover:text-[#ee7e0f]"">
+                    admin.
+                </h1>
+
+                <p class="text-lg text-gray-500 text-center mb-16 mt-2">
+                    enter the sacred password
+                </p>
+            </div>
+
+            <form action="/admin" method="post" class="space-y-6">
 
                 <div>
-                    <button type="submit"
-                        class="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Sign
-                        in</button>
+                    <label for="password"
+                        class="block mb-2 font-bold">password<span class="text-[#ff5e5e]">*</span></label>
+
+                    <input type="password" id="password" name="password"
+                        required autocomplete="current-password"
+                        placeholder="**********"
+                        class="w-full bg-[#faf9f6] border-[3px] border-[#1a1a1a] px-4 py-4 shadow-[6px_6px_0px_#1a1a1a] focus:outline-none focus:border-[#ee7e0f] focus:shadow-[8px_8px_0px_#ee7e0f] transition-all duration-200">
                 </div>
-                <div>
-                    <p class="italic flex w-full justify-center text-sm">hint: find it</p>
-                </div>
+
+                <button type="submit"
+                    class="w-full bg-[#faf9f6] border-[3px] border-[#1a1a1a] px-8 py-4 text-xl font-bold shadow-[6px_6px_0px_#1a1a1a] transition-all duration-200 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:border-[#ee7e0f] hover:text-[#ee7e0f] hover:shadow-[8px_8px_0px_#ee7e0f] active:translate-x-1 active:translate-y-1 active:shadow-[2px_2px_0px_#1a1a1a]">
+                    sign in
+                </button>
+
+                <p class="text-center italic text-gray-500">
+                    hint: find it. (.env)
+                </p>
             </form>
-        </body>
-    </html>
+        </div>
+    </body>
+</html>

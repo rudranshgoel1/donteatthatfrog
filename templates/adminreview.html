@@ -1,105 +1,95 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Page</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-</head>
-<body class="bg-[#f4f4f0] text-black min-h-screen py-10 px-4 sm:px-8 selection:bg-pink-400">
-    
-    <div class="md-6">
-        <h1 class="text-3xl">manage all excuses</h1>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Page</title>
+        <script
+            src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    </head>
+    <body class="bg-[#f4f4f0] text-black min-h-screen py-10 px-4 sm:px-8 selection:bg-pink-400">
 
-        <button class="border-2 px-2 py-2"><a href="/hidden">see hidden excuses (reported by users)</a></button>
-    </div>
-
-            <div class="">
+        <div class="max-w-7xl mx-auto">
             <div
-                class="relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default">
-                <table
-                    class="w-full text-sm text-left rtl:text-right text-body">
-                    <thead
-                        class="text-sm text-body bg-neutral-secondary-soft border-b rounded-base border-default">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 font-medium">
-                                Rank
-                            </th>
-                            <th scope="col" class="px-6 py-3 font-medium">
-                                Name
-                            </th>
-                            <th scope="col" class="px-6 py-3 font-medium">
-                                Excuse
-                            </th>
-                            <th scope="col" class="px-6 py-3 font-medium">
-                                Points
-                            </th>
-                            <th scope="col" class="px-6 py-3 font-medium">
-                                Reason
-                            </th>
-                            <th scope="col" class="px-6 py-3 font-medium">
-                                Delete
-                            </th>
+                class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
+                <div> <h1 class="text-5xl font-extrabold tracking-[-0.05em]">
+                        manage excuses. </h1> <p class="text-gray-500 mt-2">
+                        moderate the nation's productivity failures. </p> </div>
+
+                <a href="/hidden"
+                    class="inline-block border-[3px] border-[#1a1a1a] px-5 py-3 font-bold shadow-[6px_6px_0px_#1a1a1a] transition-all duration-200 hover:border-[#ee7e0f] hover:text-[#ee7e0f] hover:shadow-[8px_8px_0px_#ee7e0f]">
+                    see hidden excuses (reported by user)
+                </a>
+            </div>
+
+            <div
+                class="border-[3px] border-[#1a1a1a] bg-[#faf9f6] shadow-[8px_8px_0px_#1a1a1a] overflow-x-auto">
+
+                <table class="w-full min-w-[1000px]">
+
+                    <thead>
+                        <tr
+                            class="border-b-[3px] border-[#1a1a1a] bg-[#ee7e0f] text-[#faf9f6]">
+                            <th class="px-6 py-4 text-left font-bold">#</th>
+                            <th>Name</th>
+                            <th>Excuse</th>
+                            <th>Points</th>
+                            <th>Reason</th>
+                            <th>Delete</th>
                         </tr>
                     </thead>
+
                     <tbody>
+
                         {% for position, excuse in ranked %}
+
                         {% if excuse.pending == True %}
-                        <tr class="bg-pink-300 border-b border-default">
-                            <th class="px-6 py-4">
-                                {{ position }}
-                            </th>
-                            <td scope="row"
-                                class="px-6 py-4 font-medium text-heading whitespace-nowrap">
-                                {{ excuse.name }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ excuse.excuse }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ excuse.points }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ excuse.reason }}
-                            </td>
-                            <td class="px-6 py-4">
-                                <form action="/remove/{{ excuse.id }}" method="post">
-                                    <button type="submit"><img src="{{ url_for('static', filename='delete.svg') }}" alt="Delete" width="35" height="35"></button>
+                        <tr class="bg-red-300 border-b border-black">
+                            <td class="px-6 py-5 font-bold">{{ position }}</td>
+                            <td class="px-6 py-5">{{ excuse.name }}</td>
+                            <td class="px-6 py-5">{{ excuse.excuse }}</td>
+                            <td class="px-6 py-5 font-bold">{{
+                                excuse.points }}</td>
+                            <td class="px-6 py-5">{{ excuse.reason }}</td>
+                            <td class="px-6 py-5">
+                                <form action="/remove/{{ excuse.id }}"
+                                    method="post">
+                                    <button type="submit"
+                                        class="border-[3px] border-[#1a1a1a] px-3 py-2 font-bold shadow-[4px_4px_0px_#1a1a1a] transition-all duration-200 hover:border-[#ee7e0f] hover:text-[#ee7e0f] hover:shadow-[6px_6px_0px_#ee7e0f]">
+                                        delete
+                                    </button>
                                 </form>
                             </td>
                         </tr>
                         {% endif %}
-                        
+
                         {% if excuse.pending == False %}
-                        <tr class="bg-neutral-primary border-b border-default">
-                            <th class="px-6 py-4">
-                                {{ position }}
-                            </th>
-                            <td scope="row"
-                                class="px-6 py-4 font-medium text-heading whitespace-nowrap">
-                                {{ excuse.name }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ excuse.excuse }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ excuse.points }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ excuse.reason }}
-                            </td>
-                            <td class="px-6 py-4">
-                                <form action="/remove/{{ excuse.id }}" method="post">
-                                    <button type="submit"><img src="{{ url_for('static', filename='delete.svg') }}" alt="Delete" width="35" height="35"></button>
+                        <tr class="border-b border-black">
+                            <td class="px-6 py-5 font-bold">{{ position }}</td>
+                            <td class="px-6 py-5">{{ excuse.name }}</td>
+                            <td class="px-6 py-5">{{ excuse.excuse }}</td>
+                            <td class="px-6 py-5 font-bold">{{ excuse.points
+                                }}</td>
+                            <td class="px-6 py-5">{{ excuse.reason }}</td>
+                            <td class="px-6 py-5">
+                                <form action="/remove/{{ excuse.id }}"
+                                    method="post">
+                                    <button type="submit"
+                                        class="border-[3px] border-[#1a1a1a] px-3 py-2 font-bold shadow-[4px_4px_0px_#1a1a1a] transition-all duration-200 hover:border-[#ee7e0f] hover:text-[#ee7e0f] hover:shadow-[6px_6px_0px_#ee7e0f]">
+                                        delete
+                                    </button>
                                 </form>
                             </td>
                         </tr>
                         {% endif %}
+
                         {% endfor %}
+
                     </tbody>
+
                 </table>
             </div>
         </div>
 
-</body>
+    </body>
 </html>
