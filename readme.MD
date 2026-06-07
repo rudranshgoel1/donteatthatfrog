@@ -1,6 +1,8 @@
 # DETF (Don't Eat that Frog)
  > it is a small web app which uses community votes to find the best excuse to procrastinate.
 
+![screenshot.png](https://cdn.hackclub.com/019ea374-cf43-7122-bc0a-e6d51f0f3ccb/Screenshot%202026-06-08%20at%2012.29.41%E2%80%AFAM.png)
+
 # Features
 - /add - add an excuse
 - /all - see all excuses
