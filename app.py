@@ -465,7 +465,7 @@ def hidden():
         return jsonify({"status": 503, "message": "not authorized, login through /admin and come here"})
 
 @app.route("/report/<int:id>", methods=["GET"])
-@limiter.limit("10 per day")
+@limiter.limit("2 per day")
 def report(id):
     if "slack_id" not in session:
         session["source"] = "own"
