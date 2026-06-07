@@ -7,114 +7,80 @@
         <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
         <script src="https://kit.fontawesome.com/3cfd2ec1aa.js" crossorigin="anonymous"></script>
     </head>
-    <body class="bg-[#f4f4f0] text-black min-h-screen py-10 px-4 sm:px-8">
-        <button onClick="history.back()">go back</button>
+    <body class="bg-[#f4f4f0] text-black min-h-screen py-10 px-4 sm:px-8 selection:bg-ping-400">
+        <div class="max-w-7xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
+                <div>
+                    <h1 class="text-5xl font-extrabold tracking-[-0.05em]">
+                        all excuses.
+                    </h1>
+                    <p class="text-gray-500 mt-2">
+                        every excuse, ranked by points
+                    </p>
+                </div>
 
-        <h1 class="text-3xl">read all the excuses</h1>
-        <ul>
-            <li>excuses show here or smth idk</li>
-        </ul>
-        <button class="border-2 mx-2 my-2 p-2"><a href="/all">read all excuses (all not top 3)</a></button>
-        <div class="flex gap-4 mt-4">
-            {% if pagination.has_prev %}
-                <a href="?page={{ pagination.prev_num }}" class="p-2 border">prev</a>
-            {% endif %}
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="history.back()" class="border-[3px] border-[#1a1a1a] px-5 py-3 font-bold shadow-[6px_6px_0px_#1a1a1a] transition-all duration-200 hover:border-[#ee7e0f] hover:text-[#ee7e0f] hover:shadow-[8px_8px_0px_#ee7e0f] cursor-pointer">
+                        go back
+                    </button>
 
-            {% if pagination.has_next %}
-                <a href="?page={{ pagination.next_num }}" class="p-2 border">next</a>
-            {% endif %}
-        </div>
-        
-        {% if slackid == "nologin" %}
-        <div class="flex gap-4 mt-4">
-            <button class="border-2 mx-2 my-2 p-2"><a href="/readlogin">login to view your excuses or add an excuse</a></button>
-        </div>
-        {% endif %}
+                    {% if slackid == "nologin" %}
+                    <a href="/readlogin" class="inline-block border-[3px] border-[#1a1a1a] px-5 py-3 font-bold shadow-[6px_6px_0px_#1a1a1a] transition-all duration-200 hover:border-[#ee7e0f] hover:text-[#ee7e0f] hover:shadow-[8px_8px_0px_#ee7e0f]">
+                        login to add an excuse
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
 
-        <div class="">
-            <div
-                class="relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default">
-                <table
-                    class="w-full text-sm text-left rtl:text-right text-body">
-                    <thead
-                        class="text-sm text-body bg-neutral-secondary-soft border-b rounded-base border-default">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 font-medium">
-                                Rank
-                            </th>
-                            <th scope="col" class="px-6 py-3 font-medium">
-                                Name
-                            </th>
-                            <th scope="col" class="px-6 py-3 font-medium">
-                                Excuse
-                            </th>
-                            <th scope="col" class="px-6 py-3 font-medium">
-                                Points
-                            </th>
-                            <th scope="col" class="px-6 py-3 font-medium">
-                                Reason
-                            </th>
-                            <th scope="col" class="px-3 py-3 font-medium">
-                                Report
-                            </th>
+            <div class="border-[3px] border-[#1a1a1a] bg-[#faf9f6] shadow-[8px_8px_0px_#1a1a1a] overflow-x-auto">
+                <table class="w-full min-w-[1000px]">
+                    <thead>
+                        <tr class="border-b-[3px] border-[#1a1a1a] bg-[#ee7e0f] text-[#faf9f6]">
+                            <th class="px-6 py-4 text-left font-bold">Rank</th>
+                            <th class="px-6 py-4 text-left font-bold">Name</th>
+                            <th class="px-6 py-4 text-left font-bold">Excuse</th>
+                            <th class="px-6 py-4 text-left font-bold">Points</th>
+                            <th class="px-6 py-4 text-left font-bold">Reason</th>
+                            <th class="px-6 py-4 text-left font-bold">Report</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         {% for position, excuse in ranked %}
-                        {% if excuse.slack_id == slackid %}
-                        <tr class="bg-pink-300 border-b border-default">
-                            <th class="px-6 py-4">
-                                {{ position }}
-                            </th>
-                            <td scope="row"
-                                class="px-6 py-4 font-medium text-heading whitespace-nowrap">
-                                {{ excuse.name }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ excuse.excuse }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ excuse.points }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ excuse.reason }}
-                            </td>
-                            <td class="px-6 py-4">
-                                    <a href="/report/{{ excuse.id }}">
-                                        <img src="{{ url_for('static', filename='report.svg') }}" alt="Report" width="35" height="35">
-                                    </a>
-                            </td>
-                        </tr>
-                        {% endif %}
 
-                        {% if excuse.slack_id != slackid %}
-                        <tr class="bg-neutral-primary border-b border-default">
-                            <th class="px-6 py-4">
-                                {{ position }}
-                            </th>
-                            <td scope="row"
-                                class="px-6 py-4 font-medium text-heading whitespace-nowrap">
-                                {{ excuse.name }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ excuse.excuse }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ excuse.points }}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ excuse.reason }}
-                            </td>
-                            <td class="px-6 py-4">
-                                    <a href="/report/{{ excuse.id }}">
-                                        <img src="{{ url_for('static', filename='report.svg') }}" alt="Report" width="35" height="35">
-                                    </a>
+                        {% if excuse.slack_id == slackid %}
+                        <tr class="border-b border-black bg-pink-200">
+                        {% else %}
+                        <tr class="border-b border-black">
+                        {% endif %}
+                            <td class="px-6 py-5 font-bold">{{ position }}</td>
+                            <td class="px-6 py-5">{{ excuse.name }}</td>
+                            <td class="px-6 py-5">{{ excuse.excuse }}</td>
+                            <td class="px-6 py-5 font-bold">{{ excuse.points }}</td>
+                            <td class="px-6 py-5">{{ excuse.reason }}</td>
+                            <td class="px-6 py-5">
+                                <a href="/report/{{ excuse.id }}" class="inline-block border-[2px] border-[#1a1a1a] px-3 py-1 text-sm font-bold shadow-[3px_3px_0px_#1a1a1a] transition-all duration-200 hover:border-red-600 hover:text-red-600 hover:shadow-[4px_4px_0px_#dc2626]">
+                                    report
+                                </a>
                             </td>
                         </tr>
-                        {% endif %}
                         {% endfor %}
                     </tbody>
                 </table>
+            </div>
+
+            <div class="flex gap-4 mt-6">
+                {% if pagination.has_prev %}
+                <a href="?page={{ pagination.prev_num }}" class="border-[3px] border-[#1a1a1a] px-5 py-3 font-bold shadow-[6px_6px_0px_#1a1a1a] transition-all duration-200 hover:border-[#ee7e0f] hover:text-[#ee7e0f] hover:shadow-[8px_8px_0px_#ee7e0f]">
+                    prev
+                </a>
+                {% endif %}
+
+                {% if pagination.has_next %}
+                <a href="?page={{ pagination.next_num }}" class="border-[3px] border-[#1a1a1a] px-5 py-3 font-bold shadow-[6px_6px_0px_#1a1a1a] transition-all duration-200 hover:border-[#ee7e0f] hover:text-[#ee7e0f] hover:shadow-[8px_8px_0px_#ee7e0f]">
+                    next
+                </a>
+                {% endif %}
             </div>
         </div>
     </body>

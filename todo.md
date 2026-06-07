@@ -13,5 +13,5 @@ Todo:
 - [x] a way to see all ur excuses and rank - redirects to /all and highlights it
 - [x] a way (ONLY FOR ADMIN) to see who has reported
 - [x] /hidden - make it work
+- [x] UI REDESIGN
 - [ ] custom cursor
-- [ ] UI REDESIGN
