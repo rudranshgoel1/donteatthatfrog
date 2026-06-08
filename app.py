@@ -142,7 +142,7 @@ def ai_review(id: int, excuse: str):
         print("add api key in .env")
 
     payload = {
-        "model": "anthropic/claude-opus-4.8-fast",
+        "model": "openrouter/owl-alpha",
         "messages": [
             {
                 "role": "system",
@@ -181,7 +181,7 @@ def ai_review(id: int, excuse: str):
     }
 
     response = requests.post(
-        "https://ai.hackclub.com/proxy/v1/chat/completions",
+        "https://openrouter.ai/api/v1/chat/completions",
         headers={
             "Authorization": f"Bearer {aikey}",
             "Content-Type": "application/json",
